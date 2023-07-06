@@ -4,43 +4,70 @@ from statistics import mean, stdev
 
 from CybORG import CybORG
 from CybORG.Agents import B_lineAgent, SleepAgent
+#from CybORG.Agents.dqnAgent.main_agent import MainAgent
+from CybORG.Agents.dqnAgent.main_dqn import MainAgent
+from CybORG.Agents.dqnAgent.dqn_agent import DQNAgent
 from CybORG.Agents.SimpleAgents.BaseAgent import BaseAgent
 from CybORG.Agents.SimpleAgents.BlueLoadAgent import BlueLoadAgent
 from CybORG.Agents.SimpleAgents.BlueReactAgent import BlueReactRemoveAgent
+from CybORG.Agents.ComplexAgents.DQN_agents.DQN import DQN
 from CybORG.Agents.SimpleAgents.Meander import RedMeanderAgent
 from CybORG.Agents.Wrappers.EnumActionWrapper import EnumActionWrapper
 from CybORG.Agents.Wrappers.FixedFlatWrapper import FixedFlatWrapper
 from CybORG.Agents.Wrappers.OpenAIGymWrapper import OpenAIGymWrapper
 from CybORG.Agents.Wrappers.ReduceActionSpaceWrapper import ReduceActionSpaceWrapper
 from CybORG.Agents.Wrappers import ChallengeWrapper
+from CybORG.Agents.ComplexAgents.utilities.data_structures.Config import Config
+import os
+
+
+
 
 MAX_EPS = 10
 agent_name = 'Blue'
 
-def wrap(env):
-    return OpenAIGymWrapper(agent_name, EnumActionWrapper(FixedFlatWrapper(ReduceActionSpaceWrapper(env))))
+#def wrap(env):
+#    return OpenAIGymWrapper(agent_name, EnumActionWrapper(FixedFlatWrapper(ReduceActionSpaceWrapper(env))))
+# CHANGED WRAPPER HERE
+# ADDED FOR REPRODUCING RESULTS
+import random
+random.seed(1)
 
+
+MAX_EPS = 10
+agent_name = 'Blue'
+
+
+
+# CHANGED WRAPPER HERE
+def wrap(env):
+    return ChallengeWrapper(agent_name, env)
+    #return OpenAIGymWrapper(agent_name, EnumActionWrapper(FixedFlatWrapper(ReduceActionSpaceWrapper(env))))
 
 if __name__ == "__main__":
     cyborg_version = '1.2'
     scenario = 'Scenario1b'
     # ask for a name
-    name = input('Name: ')
+    name = "Vyas"
     # ask for a team
-    team = input("Team: ")
+    team = "Cardiff-Airbus"
     # ask for a name for the agent
-    name_of_agent = input("Name of technique: ")
+    name_of_agent = "DQN"
 
     lines = inspect.getsource(wrap)
     wrap_line = lines.split('\n')[1].split('return ')[1]
 
     # Change this line to load your agent
-    agent = BlueLoadAgent()
+    #agent = BlueReactRestoreAgent()
+
+    # ADDED AGENT HERE
+    agent = MainAgent()
+
 
     print(f'Using agent {agent.__class__.__name__}, if this is incorrect please update the code to load in your agent')
 
     file_name = str(inspect.getfile(CybORG))[:-10] + '/Evaluation/' + time.strftime("%Y%m%d_%H%M%S") + f'_{agent.__class__.__name__}.txt'
-    print(f'Saving evaluation results to {file_name}')
+    print(f'Saving Evaluation results to {file_name}')
     with open(file_name, 'a+') as data:
         data.write(f'CybORG v{1.0}, {scenario}\n')
         data.write(f'author: {name}, team: {team}, technique: {name_of_agent}\n')
@@ -51,6 +78,7 @@ if __name__ == "__main__":
 
     print(f'using CybORG v{cyborg_version}, {scenario}\n')
     for num_steps in [30, 50, 100]:
+        print(num_steps)
         for red_agent in [B_lineAgent, RedMeanderAgent, SleepAgent]:
 
             cyborg = CybORG(path, 'sim', agents={'Red': red_agent})
@@ -69,12 +97,19 @@ if __name__ == "__main__":
                 # cyborg.env.env.tracker.render()
                 for j in range(num_steps):
                     action = agent.get_action(observation, action_space)
+
+                    # THIS LOOKS INCORRECT - as it uses "obs" instead of "observation" so it isn't fed to the get_action after
+                    #obs, rew, done, info = wrapped_cyborg.step(action)
+                    # ADDED CORRECTION HERE
                     observation, rew, done, info = wrapped_cyborg.step(action)
+
                     # result = cyborg.step(agent_name, action)
                     r.append(rew)
                     # r.append(result.reward)
                     a.append((str(cyborg.get_last_action('Blue')), str(cyborg.get_last_action('Red'))))
+
                 total_reward.append(sum(r))
+                print(total_reward)
                 actions.append(a)
                 # observation = cyborg.reset().observation
                 observation = wrapped_cyborg.reset()

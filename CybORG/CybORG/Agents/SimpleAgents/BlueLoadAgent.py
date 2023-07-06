@@ -8,6 +8,7 @@ from CybORG.Agents.Wrappers.EnumActionWrapper import EnumActionWrapper
 from CybORG.Agents.Wrappers.FixedFlatWrapper import FixedFlatWrapper
 from CybORG.Agents.Wrappers.OpenAIGymWrapper import OpenAIGymWrapper
 from CybORG.Agents.Wrappers.ReduceActionSpaceWrapper import ReduceActionSpaceWrapper
+from CybORG.Agents.dqnAgent.dqn_agent import DQNAgent
 
 class BlueLoadAgent(BaseAgent):
     # agent that loads a StableBaselines3 PPO model file

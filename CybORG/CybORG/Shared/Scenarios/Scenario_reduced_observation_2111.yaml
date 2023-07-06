@@ -1,0 +1,158 @@
+Agents:
+  Blue:
+    AllowedSubnets:
+    - User
+    - Enterprise
+    - Op_Server
+    - Op_Host
+    INT: &id001
+      Hosts:
+        User0:
+          Interfaces:
+          - User
+          System info: All
+    actions:
+    - Sleep
+    - Monitor
+    - Analyse
+    - Block
+    - Unblock
+    - Restore
+    - Deceive
+    agent_type: SleepAgent
+    reward_calculator_type: SimpleAvailability
+    starting_sessions:
+    - artifacts:
+      - Generic.Client.Stats
+      - Linux.Events.SSHLogin
+      - Windows.Events.ProcessCreation
+      hostname: Enterprise0
+      name: VeloServer
+      num_children_sessions: 2
+      type: VelociraptorServer
+      username: ubuntu
+    - hostname: Internal
+      name: VeloInternal
+      parent: VeloServer
+      type: VelociraptorClient
+      username: SYSTEM
+    - hostname: Gateway
+      name: VeloGateway
+      parent: VeloServer
+      type: VelociraptorClient
+      username: ubuntu
+    wrappers: []
+  Green:
+    AllowedSubnets:
+    - User
+    - Enterprise
+    - Op_Server
+    - Op_Host
+    INT: []
+    actions:
+    - Sleep
+    - AddFile
+    - ModifyFile
+    - DeleteFile
+    - DownloadFile
+    - MoveFile
+    - CreateProcess
+    - RemoveProcess
+    - GreenPortScan
+    - GreenPingSweep
+    - GreenSSHConnection
+    - MagicOTConnection
+    agent_type: SleepAgent
+    reward_calculator_type: []
+    starting_sessions:
+    - hostname: User0
+      name: GreenSession
+      type: Session
+      username: GreenAgent
+    - hostname: User1
+      name: GreenSession
+      type: Session
+      username: GreenAgent
+    - hostname: Enterprise0
+      name: GreenSession
+      type: Session
+      username: GreenAgent
+    - hostname: Op_Server0
+      name: GreenSession
+      type: Session
+      username: GreenAgent
+    - hostname: Op_Host0
+      name: GreenSession
+      type: Session
+      username: GreenAgent
+    wrappers: []
+  Red:
+    AllowedSubnets:
+    - User
+    INT: *id001
+    actions:
+    - Sleep
+    - DiscoverRemoteSystem
+    - DiscoverNetworkService
+    - DiscoverRemoteVulnerability
+    - Exploit
+    - Escalate
+    - Impact
+    agent_type: SleepAgent
+    reward_calculator_type: Pwn
+    starting_sessions:
+    - hostname: User0
+      name: MSFServer
+      type: MetasploitServer
+      username: SYSTEM
+    wrappers: []
+Hosts:
+  Enterprise0:
+    AWS_Info: []
+    image: Internal
+  Op_Host0:
+    AWS_Info: []
+    image: Gateway
+  Op_Server0:
+    AWS_Info: []
+    image: Gateway
+  User0:
+    AWS_Info: []
+    image: Internal
+  User1:
+    AWS_Info: []
+    image: Internal
+Subnets:
+  Enterprise:
+    Hosts:
+    - Enterprise0
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 1
+  Operational_A:
+    Hosts:
+    - Op_Server0
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 1
+  Operational_B:
+    Hosts:
+    - Op_Host0
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 1
+  User:
+    Hosts:
+    - User0
+    - User1
+    NACLs:
+      all:
+        in: all
+        out: all
+    Size: 2

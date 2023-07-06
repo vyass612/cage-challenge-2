@@ -7,7 +7,7 @@ from CybORG.Agents.Wrappers.BaseWrapper import BaseWrapper
 from CybORG.Agents.Wrappers.TrueTableWrapper import TrueTableWrapper
 
 class BlueTableWrapper(BaseWrapper):
-    def __init__(self,env=None,agent=None,output_mode='table'):
+    def __init__(self,env=None,agent=None,output_mode='vector'):
         super().__init__(env,agent)
         self.env = TrueTableWrapper(env=env, agent=agent)
         self.agent = agent
@@ -209,7 +209,7 @@ class BlueTableWrapper(BaseWrapper):
 
     def _create_vector(self, success):
         table = self._create_blue_table(success)._rows
-
+        print(table)
         proto_vector = []
         for row in table:
             # Activity

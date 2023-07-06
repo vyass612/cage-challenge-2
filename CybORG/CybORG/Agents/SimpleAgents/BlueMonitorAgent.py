@@ -3,14 +3,14 @@ from CybORG.Agents.SimpleAgents.BaseAgent import BaseAgent
 
 class BlueMonitorAgent(BaseAgent):
     def __init__(self):
-        pass
+        # action 0 is sleep
+        self.action = 0
 
-    def get_action(self,observation,action_space):
-        session = 0
-        return Monitor(session=session,agent='Blue')
+    # unecessary to add observation but need it to be consistent with our other agents
+    def get_action(self, observation, action_space=None):
+        return self.action
 
-
-    def train(self, results):
+    def train(self):
         pass
 
     def end_episode(self):
